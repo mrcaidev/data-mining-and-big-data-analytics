@@ -1,0 +1,14 @@
+[[source]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+verify_ssl = true
+name = "aliyun"
+
+[packages]
+seaborn = "*"
+typing-extensions = "*"
+
+[dev-packages]
+black = "*"
+
+[requires]
+python_version = "3.10"
