@@ -23,7 +23,7 @@ public class Apriori {
     Apriori(double minSupport, double minConfidence) {
         this.minSupport = minSupport;
         this.minConfidence = minConfidence;
-        this.dataSet = loadDataSet("data/association/top1000data.txt");
+        this.dataSet = Apriori.loadDataSet("data/association/top1000data.txt");
     }
 
     /**
@@ -170,7 +170,7 @@ public class Apriori {
                 }
 
                 // If the k item set has an infrequent k-1 subset, skip it.
-                if (hasInfrequentSubset(kItemSet, lastFrequentItemSets)) {
+                if (Apriori.hasInfrequentSubset(kItemSet, lastFrequentItemSets)) {
                     continue;
                 }
 
@@ -223,7 +223,7 @@ public class Apriori {
         // For every possible condition size.
         for (int i = 1; i < frequentItemSet.size(); i++) {
             // Get all possible conditions.
-            Set<Set<String>> conditions = getCombinations(frequentItemSet, i);
+            Set<Set<String>> conditions = Apriori.getCombinations(frequentItemSet, i);
 
             // For every possible condition.
             for (Set<String> condition : conditions) {
@@ -245,7 +245,7 @@ public class Apriori {
         // For every frequent item set.
         for (Set<String> frequentItemSet : allFrequentItemSets.keySet()) {
             // Get all possible association rules.
-            Map<Set<String>, Set<String>> candidateRules = getCandidateRules(frequentItemSet);
+            Map<Set<String>, Set<String>> candidateRules = Apriori.getCandidateRules(frequentItemSet);
 
             // For every possible association rule.
             for (Set<String> condition : candidateRules.keySet()) {
@@ -300,7 +300,7 @@ public class Apriori {
             remainingElements.remove(element);
 
             // Get all possible combinations of the remaining elements.
-            Set<Set<String>> remainingCombinations = getCombinations(remainingElements, size - 1);
+            Set<Set<String>> remainingCombinations = Apriori.getCombinations(remainingElements, size - 1);
 
             // For every possible combination of the remaining elements.
             for (Set<String> remainingCombination : remainingCombinations) {
