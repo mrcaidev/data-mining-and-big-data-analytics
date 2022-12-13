@@ -14,20 +14,15 @@ public class FeatureSelection {
 
     public static void main(String[] args) throws Exception {
         FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff");
-        fs.select(2);
-        fs.saveDataSet("outputs/preprocessing/iris-selected.arff");
+        Instances selectedDataSet = fs.select(2);
+        saveDataSet("outputs/preprocessing/iris-selected.arff", selectedDataSet);
     }
 
-    FeatureSelection(String filePath) throws Exception {
-        loadDataSet(filePath);
+    public FeatureSelection(String filePath) throws Exception {
+        dataSet = loadDataSet(filePath);
     }
 
-    private void loadDataSet(String filePath) throws Exception {
-        DataSource source = new DataSource(filePath);
-        dataSet = source.getDataSet();
-    }
-
-    private void select(int selectNum) throws Exception {
+    private Instances select(int selectNum) throws Exception {
         // Target count of features.
         Ranker rank = new Ranker();
         rank.setThreshold(0);
@@ -43,10 +38,15 @@ public class FeatureSelection {
         selection.setInputFormat(dataSet);
 
         // Select features.
-        dataSet = Filter.useFilter(dataSet, selection);
+        return Filter.useFilter(dataSet, selection);
     }
 
-    private void saveDataSet(String filePath) throws Exception {
+    private static Instances loadDataSet(String filePath) throws Exception {
+        DataSource source = new DataSource(filePath);
+        return source.getDataSet();
+    }
+
+    private static void saveDataSet(String filePath, Instances dataSet) throws Exception {
         DataSink.write(filePath, dataSet);
     }
 }

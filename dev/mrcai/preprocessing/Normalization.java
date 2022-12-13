@@ -11,26 +11,26 @@ public class Normalization {
 
     public static void main(String[] args) throws Exception {
         Normalization norm = new Normalization("data/preprocessing/iris.arff");
-        norm.normalize();
-        norm.saveDataSet("outputs/preprocessing/iris-normalized.arff");
+        Instances normalizedDataSet = norm.normalize();
+        saveDataSet("outputs/preprocessing/iris-normalized.arff", normalizedDataSet);
     }
 
     public Normalization(String filePath) throws Exception {
-        loadDataSet(filePath);
+        dataSet = loadDataSet(filePath);
     }
 
-    private void loadDataSet(String filePath) throws Exception {
-        DataSource source = new DataSource(filePath);
-        dataSet = source.getDataSet();
-    }
-
-    private void normalize() throws Exception {
+    private Instances normalize() throws Exception {
         Normalize norm = new Normalize();
         norm.setInputFormat(dataSet);
-        dataSet = Filter.useFilter(dataSet, norm);
+        return Filter.useFilter(dataSet, norm);
     }
 
-    private void saveDataSet(String filePath) throws Exception {
+    private static Instances loadDataSet(String filePath) throws Exception {
+        DataSource source = new DataSource(filePath);
+        return source.getDataSet();
+    }
+
+    private static void saveDataSet(String filePath, Instances dataSet) throws Exception {
         DataSink.write(filePath, dataSet);
     }
 }
