@@ -10,16 +10,16 @@ import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
 public class FeatureSelection {
-    Instances dataSet;
+    Instances instances;
 
     public static void main(String[] args) throws Exception {
         FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff");
-        Instances selectedDataSet = fs.select(2);
-        saveDataSet("outputs/preprocessing/iris-selected.arff", selectedDataSet);
+        Instances selectedInstances = fs.select(2);
+        saveInstances("outputs/preprocessing/iris-selected.arff", selectedInstances);
     }
 
     public FeatureSelection(String filePath) throws Exception {
-        dataSet = loadDataSet(filePath);
+        instances = loadInstances(filePath);
     }
 
     private Instances select(int selectNum) throws Exception {
@@ -35,18 +35,18 @@ public class FeatureSelection {
         AttributeSelection selection = new AttributeSelection();
         selection.setEvaluator(evaluation);
         selection.setSearch(rank);
-        selection.setInputFormat(dataSet);
+        selection.setInputFormat(instances);
 
         // Select features.
-        return Filter.useFilter(dataSet, selection);
+        return Filter.useFilter(instances, selection);
     }
 
-    private static Instances loadDataSet(String filePath) throws Exception {
+    private static Instances loadInstances(String filePath) throws Exception {
         DataSource source = new DataSource(filePath);
         return source.getDataSet();
     }
 
-    private static void saveDataSet(String filePath, Instances dataSet) throws Exception {
-        DataSink.write(filePath, dataSet);
+    private static void saveInstances(String filePath, Instances instances) throws Exception {
+        DataSink.write(filePath, instances);
     }
 }
