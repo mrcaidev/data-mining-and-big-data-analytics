@@ -1,52 +1,41 @@
 package dev.mrcai.classification;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class KNN {
-    private class Data {
-        double[] data;
-        String label;
-
-        Data(double[] data, String label) {
-            this.data = data;
-            this.label = label;
-        }
-    }
-
-    ArrayList<Data> trainSet;
+    List<Data> trainSet;
     int k;
 
     public static void main(String[] args) {
-        KNN knn = new KNN("data/classification/train.csv", 3);
-        knn.predict("data/classification/test.csv");
+        KNN knn = new KNN(3);
+        knn.predict();
     }
 
-    public KNN(String filePath, int k) {
-        this.trainSet = this.loadDataSet(filePath);
+    public KNN(int k) {
+        this.trainSet = KNN.loadDataSet("data/classification/train.csv");
         this.k = k;
     }
 
-    private ArrayList<Data> loadDataSet(String filePath) {
-        ArrayList<Data> dataSet = new ArrayList<Data>();
+    private static List<Data> loadDataSet(String filePath) {
+        List<Data> dataSet = new ArrayList<Data>();
 
         try {
-            File file = new File(filePath);
-            FileReader fileReader = new FileReader(file);
+            FileReader fileReader = new FileReader(filePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
-                String[] dataString = line.trim().split(",");
-                double[] data = new double[dataString.length - 1];
-                for (int i = 0; i < dataString.length - 1; i++) {
-                    data[i] = Double.parseDouble(dataString[i]);
+                String[] rawData = line.trim().split(",");
+                double[] data = new double[rawData.length - 1];
+                for (int i = 0; i < rawData.length - 1; i++) {
+                    data[i] = Double.parseDouble(rawData[i]);
                 }
-                dataSet.add(new Data(data, dataString[dataString.length - 1]));
+                dataSet.add(new Data(data, rawData[rawData.length - 1]));
             }
 
             bufferedReader.close();
@@ -57,9 +46,9 @@ public class KNN {
         return dataSet;
     }
 
-    public void predict(String filePath) {
+    public void predict() {
         // Read test data set.
-        ArrayList<Data> testSet = this.loadDataSet(filePath);
+        List<Data> testSet = KNN.loadDataSet("data/classification/test.csv");
 
         // Predict each data in test data set.
         int correct = 0;
@@ -81,11 +70,11 @@ public class KNN {
         // Calculate the distance between the test data and each training data.
         double[] distances = new double[this.trainSet.size()];
         for (int i = 0; i < this.trainSet.size(); i++) {
-            distances[i] = this.getDistance(testData, this.trainSet.get(i));
+            distances[i] = KNN.getDistance(testData, this.trainSet.get(i));
         }
 
         // Sort the distances and get the k nearest neighbors.
-        HashMap<String, Integer> voteMap = new HashMap<String, Integer>();
+        Map<String, Integer> voteMap = new HashMap<String, Integer>();
         for (int num = 0; num < this.k; num++) {
             // Find the nearest neighbor.
             double minDistance = Integer.MAX_VALUE;
@@ -116,22 +105,21 @@ public class KNN {
         }
 
         // Find the label with the most votes.
-        Iterator<String> key = voteMap.keySet().iterator();
         String prediction = "";
         int maxVote = 0;
-        while (key.hasNext()) {
-            String label = key.next();
+        for (String label : voteMap.keySet()) {
             int vote = voteMap.get(label);
-            if (vote > maxVote) {
-                maxVote = vote;
-                prediction = label;
+            if (vote <= maxVote) {
+                continue;
             }
+            maxVote = vote;
+            prediction = label;
         }
 
         return prediction;
     }
 
-    private double getDistance(Data testData, Data trainData) {
+    private static double getDistance(Data testData, Data trainData) {
         // Calculate the Euclidean distance.
         double sum = 0;
         for (int i = 0; i < testData.data.length; i++) {
