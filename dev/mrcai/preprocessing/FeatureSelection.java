@@ -10,15 +10,28 @@ import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
 public class FeatureSelection {
-    public static void main(String[] args) throws Exception {
-        // Read data.
-        DataSource source = new DataSource("data/preprocessing/iris.arff");
-        Instances instances = source.getDataSet();
+    Instances dataSet;
 
+    public static void main(String[] args) throws Exception {
+        FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff");
+        fs.select(2);
+        fs.saveDataSet("outputs/preprocessing/iris-selected.arff");
+    }
+
+    FeatureSelection(String filePath) throws Exception {
+        loadDataSet(filePath);
+    }
+
+    private void loadDataSet(String filePath) throws Exception {
+        DataSource source = new DataSource(filePath);
+        dataSet = source.getDataSet();
+    }
+
+    private void select(int selectNum) throws Exception {
         // Target count of features.
         Ranker rank = new Ranker();
         rank.setThreshold(0);
-        rank.setNumToSelect(2);
+        rank.setNumToSelect(selectNum);
 
         // Algorithm to select features.
         ASEvaluation evaluation = new InfoGainAttributeEval();
@@ -27,12 +40,13 @@ public class FeatureSelection {
         AttributeSelection selection = new AttributeSelection();
         selection.setEvaluator(evaluation);
         selection.setSearch(rank);
-        selection.setInputFormat(instances);
+        selection.setInputFormat(dataSet);
 
         // Select features.
-        Instances selectedInstances = Filter.useFilter(instances, selection);
+        dataSet = Filter.useFilter(dataSet, selection);
+    }
 
-        // Write result.
-        DataSink.write("outputs/preprocessing/iris-selected.arff", selectedInstances);
+    private void saveDataSet(String filePath) throws Exception {
+        DataSink.write(filePath, dataSet);
     }
 }

@@ -7,17 +7,30 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Normalize;
 
 public class Normalization {
+    Instances dataSet;
+
     public static void main(String[] args) throws Exception {
-        // Read data.
-        DataSource source = new DataSource("data/preprocessing/iris.arff");
-        Instances instances = source.getDataSet();
+        Normalization norm = new Normalization("data/preprocessing/iris.arff");
+        norm.normalize();
+        norm.saveDataSet("outputs/preprocessing/iris-normalized.arff");
+    }
 
-        // Normalize instances.
+    public Normalization(String filePath) throws Exception {
+        loadDataSet(filePath);
+    }
+
+    private void loadDataSet(String filePath) throws Exception {
+        DataSource source = new DataSource(filePath);
+        dataSet = source.getDataSet();
+    }
+
+    private void normalize() throws Exception {
         Normalize norm = new Normalize();
-        norm.setInputFormat(instances);
-        Instances normalizedInstances = Filter.useFilter(instances, norm);
+        norm.setInputFormat(dataSet);
+        dataSet = Filter.useFilter(dataSet, norm);
+    }
 
-        // Write result.
-        DataSink.write("outputs/preprocessing/iris-normalized.arff", normalizedInstances);
+    private void saveDataSet(String filePath) throws Exception {
+        DataSink.write(filePath, dataSet);
     }
 }
