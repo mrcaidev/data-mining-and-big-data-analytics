@@ -1,11 +1,13 @@
 package dev.mrcai.clustering;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 
@@ -14,6 +16,11 @@ import org.jfree.data.xy.DefaultXYDataset;
  */
 public class Plot<T extends Point> {
     /**
+     * The title of the plot.
+     */
+    String title = "Cluster";
+
+    /**
      * The data that will be plotted, in the format that JFreeChart can understand.
      */
     private DefaultXYDataset plotData = new DefaultXYDataset();
@@ -21,22 +28,12 @@ public class Plot<T extends Point> {
     /**
      * Construct a plot with the given points.
      *
+     * @param title  The title of the plot.
      * @param points The points to be plotted.
      */
-    public Plot(List<T> points) {
+    public Plot(String title, List<T> points) {
+        this.title = title;
         getPlotData(points);
-    }
-
-    /**
-     * Visualize the plot on the screen.
-     *
-     * @param title The title of the plot.
-     */
-    public void visualize(String title) {
-        JFreeChart chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
-        ChartFrame frame = new ChartFrame(title, chart, true);
-        frame.pack();
-        frame.setVisible(true);
     }
 
     /**
@@ -99,5 +96,28 @@ public class Plot<T extends Point> {
             }
         }
         return pointNums;
+    }
+
+    /**
+     * Save the plot to the given file path.
+     *
+     * @param filePath The file path to save the plot.
+     */
+    public void save(String filePath) {
+        JFreeChart chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
+        ChartFrame frame = new ChartFrame(title, chart, true);
+        frame.pack();
+
+        try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            ChartUtilities.saveChartAsPNG(file, chart, 500, 500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        frame.setVisible(true);
     }
 }

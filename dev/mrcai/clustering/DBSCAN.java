@@ -104,8 +104,9 @@ public class DBSCAN {
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
                 String[] stringPoint = line.trim().split("\t");
-                DbscanPoint point = new DbscanPoint(Double.parseDouble(stringPoint[0]),
-                        Double.parseDouble(stringPoint[1]));
+                double x = Double.parseDouble(stringPoint[0]);
+                double y = Double.parseDouble(stringPoint[1]);
+                DbscanPoint point = new DbscanPoint(x, y);
                 points.add(point);
             }
 
@@ -175,8 +176,8 @@ public class DBSCAN {
         }
 
         // Visualize the result.
-        Plot<DbscanPoint> plot = new Plot<DbscanPoint>(points);
-        plot.visualize("DBSCAN clustering");
+        Plot<DbscanPoint> plot = new Plot<DbscanPoint>("DBSCAN clustering", points);
+        plot.save("outputs/clustering/dbscan.png");
     }
 
     /**
