@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public class KNN {
-    List<Data> trainSet;
-    int k;
+    private List<Data> trainSet;
+    private int k;
 
     public static void main(String[] args) {
         KNN knn = new KNN("data/classification/train.csv", 3);

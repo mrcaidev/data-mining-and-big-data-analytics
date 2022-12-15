@@ -1,8 +1,8 @@
 package dev.mrcai.classification;
 
 public class Data {
-    double[] data;
-    String label;
+    public double[] data;
+    public String label;
 
     Data(double[] data, String label) {
         this.data = data;

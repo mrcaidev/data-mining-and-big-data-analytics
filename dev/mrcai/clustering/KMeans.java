@@ -11,9 +11,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 
 public class KMeans {
-    List<double[]> points;
-    double[][] centers;
-    int clusterNum;
+    private List<double[]> points;
+    private double[][] centers;
+    private int clusterNum;
 
     public static void main(String args[]) {
         KMeans kMeans = new KMeans("data/clustering/points.txt", 3);

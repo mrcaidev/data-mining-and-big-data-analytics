@@ -7,7 +7,7 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Normalize;
 
 public class Normalization {
-    Instances instances;
+    private Instances instances;
 
     public static void main(String[] args) throws Exception {
         Normalization norm = new Normalization("data/preprocessing/iris.arff");

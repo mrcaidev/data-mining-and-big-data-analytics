@@ -10,7 +10,7 @@ import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
 public class FeatureSelection {
-    Instances instances;
+    private Instances instances;
 
     public static void main(String[] args) throws Exception {
         FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff");

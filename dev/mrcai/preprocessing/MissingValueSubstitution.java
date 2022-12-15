@@ -7,8 +7,8 @@ import weka.core.converters.ConverterUtils.DataSink;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class MissingValueSubstitution {
-    Instances instances;
-    Object[] substitutions;
+    private Instances instances;
+    private Object[] substitutions;
 
     public static void main(String[] args) throws Exception {
         MissingValueSubstitution mvs = new MissingValueSubstitution("data/preprocessing/labor.arff");
