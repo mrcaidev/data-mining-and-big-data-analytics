@@ -5,60 +5,111 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.DefaultXYDataset;
-
+/**
+ * K Means clustering algorithm.
+ */
 public class KMeans {
-    private List<double[]> points;
-    private double[][] centers;
-    private int clusterNum;
+    private List<Point> points = new ArrayList<Point>();
+    private List<Point> centers = new ArrayList<Point>();
 
     public static void main(String args[]) {
         KMeans kMeans = new KMeans("data/clustering/points.txt", 3);
-        kMeans.cluster();
+        kMeans.run();
     }
 
     KMeans(String filePath, int clusterNum) {
-        points = loadDataSet(filePath);
-        this.clusterNum = clusterNum;
-        centers = createRandomCenters();
+        loadPoints(filePath);
+        initializeCenters(clusterNum);
     }
 
-    private void cluster() {
+    private void loadPoints(String filePath) {
+        try {
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] pointString = line.trim().split("\t");
+                double x = Double.parseDouble(pointString[0]);
+                double y = Double.parseDouble(pointString[1]);
+                Point point = new Point(x, y);
+                points.add(point);
+            }
+
+            bufferedReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeCenters(int clusterNum) {
+        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
+            centers.add(createRandomPoint());
+        }
+    }
+
+    private void run() {
         while (true) {
-            double[][] nextCenters = getNextCenters();
+            List<Point> nextCenters = getNextCenters();
             if (isSameCenters(nextCenters)) {
                 break;
             }
             centers = nextCenters;
         }
 
-        printCenters();
-        visualize();
+        Plot<Point> plot = new Plot<Point>("K means clustering", points);
+        plot.save("outputs/clustering/kmeans.png");
     }
 
-    private double[][] createRandomCenters() {
-        int dimensionNum = points.get(0).length;
-        double[][] centers = new double[clusterNum][dimensionNum];
-
-        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
-            double[] center = new double[dimensionNum];
-            for (int dimensionIndex = 0; dimensionIndex < dimensionNum; dimensionIndex++) {
-                center[dimensionIndex] = getRandomNumber();
-            }
-            centers[clusterIndex] = center;
+    private List<Point> getNextCenters() {
+        // Store the next centers' coordinates.
+        List<Point> nextCenters = new ArrayList<Point>();
+        for (int centerIndex = 0; centerIndex < centers.size(); centerIndex++) {
+            nextCenters.add(new Point(0, 0));
         }
 
-        return centers;
+        // Record the number of points in each next cluster.
+        int clusterNum = centers.size();
+        int[] pointNums = new int[clusterNum];
+
+        // Every point goes to its closest center.
+        for (Point point : points) {
+            int closestCenterIndex = getClosestCenterIndex(point);
+
+            // Assign the point to the cluster.
+            point.setClusterIndex(closestCenterIndex);
+            pointNums[closestCenterIndex]++;
+
+            // Update the next center's coordinates.
+            // The current coordinates are the sum of all points' coordinates
+            // in the cluster, used to calculate the mean value later.
+            Point nextCenter = nextCenters.get(closestCenterIndex);
+            nextCenter.setX(nextCenter.getX() + point.getX());
+            nextCenter.setY(nextCenter.getY() + point.getY());
+        }
+
+        // Generate new centers.
+        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
+            // If there is no point in the cluster, spawn this center randomly again.
+            if (pointNums[clusterIndex] == 0) {
+                nextCenters.set(clusterIndex, createRandomPoint());
+                continue;
+            }
+
+            // Otherwise, calculate the mean of the cluster, and treat it as the new center.
+            Point nextCenter = nextCenters.get(clusterIndex);
+            nextCenter.setX(nextCenter.getX() / pointNums[clusterIndex]);
+            nextCenter.setY(nextCenter.getY() / pointNums[clusterIndex]);
+        }
+
+        return nextCenters;
     }
 
-    private int getClosestCenterIndex(double[] point) {
+    private int getClosestCenterIndex(Point point) {
         double minDistance = Double.MAX_VALUE;
         int closestCenterIndex = -1;
-        for (int centerIndex = 0; centerIndex < centers.length; centerIndex++) {
-            double distance = getDistance(centers[centerIndex], point);
+        for (int centerIndex = 0; centerIndex < centers.size(); centerIndex++) {
+            double distance = point.getDistance(centers.get(centerIndex));
             if (distance >= minDistance) {
                 continue;
             }
@@ -68,124 +119,18 @@ public class KMeans {
         return closestCenterIndex;
     }
 
-    private double[][] getNextCenters() {
-        int dimensionNum = points.get(0).length;
-        double[][] nextCenters = new double[clusterNum][dimensionNum];
-        int[] clusterCounts = new int[clusterNum];
-
-        // Every center collects its closest points.
-        for (double[] point : points) {
-            int closestClusterIndex = getClosestCenterIndex(point);
-            clusterCounts[closestClusterIndex]++;
-            for (int dim = 0; dim < dimensionNum; dim++) {
-                nextCenters[closestClusterIndex][dim] += point[dim];
-            }
-        }
-
-        // Generate new centers.
-        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
-            for (int dimensionIndex = 0; dimensionIndex < dimensionNum; dimensionIndex++) {
-                // If there is no point in the cluster, spawn this center randomly again.
-                if (clusterCounts[clusterIndex] == 0) {
-                    nextCenters[clusterIndex][dimensionIndex] = getRandomNumber();
-                    continue;
-                }
-
-                // Otherwise, calculate the mean of the cluster, and treat it as the new center.
-                nextCenters[clusterIndex][dimensionIndex] /= clusterCounts[clusterIndex];
-            }
-        }
-
-        return nextCenters;
-    }
-
-    private boolean isSameCenters(double[][] nextCenters) {
-        for (int centerIndex = 0; centerIndex < centers.length; centerIndex++) {
-            if (getDistance(centers[centerIndex], nextCenters[centerIndex]) != 0) {
+    private boolean isSameCenters(List<Point> nextCenters) {
+        for (int centerIndex = 0; centerIndex < centers.size(); centerIndex++) {
+            Point center = centers.get(centerIndex);
+            Point nextCenter = nextCenters.get(centerIndex);
+            if (center.getX() != nextCenter.getX() || center.getY() != nextCenter.getY()) {
                 return false;
             }
         }
         return true;
     }
 
-    private void printCenters() {
-        for (int centerIndex = 0; centerIndex < centers.length; centerIndex++) {
-            System.out.print("Center " + centerIndex + ": ");
-            for (int dimensionIndex = 0; dimensionIndex < centers[centerIndex].length; dimensionIndex++) {
-                double coordinate = Math.round(centers[centerIndex][dimensionIndex] * 100) / 100.0;
-                System.out.print(coordinate + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    private void visualize() {
-        // Group the points by their closest center.
-        List<List<double[]>> clusters = new ArrayList<List<double[]>>();
-        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
-            clusters.add(new ArrayList<double[]>());
-        }
-        for (double[] point : points) {
-            int closestClusterIndex = getClosestCenterIndex(point);
-            clusters.get(closestClusterIndex).add(point);
-        }
-
-        // Transform the data to the format that JFreeChart can understand.
-        int dimensionNum = points.get(0).length;
-        DefaultXYDataset plotData = new DefaultXYDataset();
-        for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
-            List<double[]> clusterPoints = clusters.get(clusterIndex);
-            double[][] clusterPlotData = new double[dimensionNum][clusterPoints.size()];
-            for (int pointIndex = 0; pointIndex < clusterPoints.size(); pointIndex++) {
-                double[] point = clusterPoints.get(pointIndex);
-                for (int dimensionIndex = 0; dimensionIndex < dimensionNum; dimensionIndex++) {
-                    clusterPlotData[dimensionIndex][pointIndex] = point[dimensionIndex];
-                }
-            }
-            plotData.addSeries(clusterIndex, clusterPlotData);
-        }
-
-        // Visualize the data.
-        JFreeChart chart = ChartFactory.createScatterPlot("Clusters", "x", "y", plotData);
-        ChartFrame frame = new ChartFrame("K Means Clustering", chart, true);
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    private static double getRandomNumber() {
-        return Math.random() * 100;
-    }
-
-    private static double getDistance(double[] point1, double[] point2) {
-        double sum = 0;
-        for (int dimensionIndex = 0; dimensionIndex < point1.length; dimensionIndex++) {
-            sum += Math.pow(point1[dimensionIndex] - point2[dimensionIndex], 2);
-        }
-        return Math.sqrt(sum);
-    }
-
-    private static List<double[]> loadDataSet(String filePath) {
-        List<double[]> points = new ArrayList<double[]>();
-
-        try {
-            FileReader fileReader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] pointString = line.trim().split("\t");
-                double[] point = new double[pointString.length];
-                for (int i = 0; i < pointString.length; i++) {
-                    point[i] = Double.parseDouble(pointString[i]);
-                }
-                points.add(point);
-            }
-
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return points;
+    private static Point createRandomPoint() {
+        return new Point(Math.random() * 100, Math.random() * 100);
     }
 }
