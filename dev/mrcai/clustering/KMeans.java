@@ -9,19 +9,42 @@ import java.util.List;
  * K Means clustering algorithm.
  */
 public class KMeans {
+    /**
+     * The points to be clustered.
+     */
     private List<Point> points = new ArrayList<Point>();
+
+    /**
+     * The centers of the clusters.
+     */
     private List<Point> centers = new ArrayList<Point>();
 
+    /**
+     * Cluster the points in the given file, and visualize the result.
+     */
     public static void main(String args[]) {
         KMeans kMeans = new KMeans("data/clustering/points.txt", 3);
         kMeans.run();
     }
 
+    /**
+     * Create a K means clustering algorithm with the given points and cluster
+     * number.
+     *
+     * @param filePath   The path of the file that stores the points.
+     * @param clusterNum The number of clusters.
+     */
     KMeans(String filePath, int clusterNum) {
         loadPoints(filePath);
         initializeCenters(clusterNum);
     }
 
+    /**
+     * Load the points from the given file.
+     *
+     * @param filePath The path of the file that contains the points to be
+     *                 clustered.
+     */
     private void loadPoints(String filePath) {
         try {
             FileReader fileReader = new FileReader(filePath);
@@ -42,12 +65,20 @@ public class KMeans {
         }
     }
 
+    /**
+     * Initialize the centers of the clusters at random points.
+     *
+     * @param clusterNum The number of clusters.
+     */
     private void initializeCenters(int clusterNum) {
         for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
             centers.add(createRandomPoint());
         }
     }
 
+    /**
+     * Run the K means clustering algorithm.
+     */
     private void run() {
         while (true) {
             List<Point> nextCenters = getNextCenters();
@@ -61,6 +92,11 @@ public class KMeans {
         plot.save("outputs/clustering/kmeans.png");
     }
 
+    /**
+     * Get the centers of the clusters in the next iteration.
+     *
+     * @return The next centers of the clusters.
+     */
     private List<Point> getNextCenters() {
         // Store the next centers' coordinates.
         List<Point> nextCenters = new ArrayList<Point>();
@@ -105,6 +141,12 @@ public class KMeans {
         return nextCenters;
     }
 
+    /**
+     * Get the index of the closest center to the given point.
+     *
+     * @param point The point to be clustered.
+     * @return The index of the closest center.
+     */
     private int getClosestCenterIndex(Point point) {
         double minDistance = Double.MAX_VALUE;
         int closestCenterIndex = -1;
@@ -119,6 +161,12 @@ public class KMeans {
         return closestCenterIndex;
     }
 
+    /**
+     * Check if the next centers are the same as the current centers.
+     *
+     * @param nextCenters The centers to be checked.
+     * @return True if the centers are the same, false otherwise.
+     */
     private boolean isSameCenters(List<Point> nextCenters) {
         for (int centerIndex = 0; centerIndex < centers.size(); centerIndex++) {
             Point center = centers.get(centerIndex);
@@ -130,6 +178,11 @@ public class KMeans {
         return true;
     }
 
+    /**
+     * Create a random point.
+     *
+     * @return The random point.
+     */
     private static Point createRandomPoint() {
         return new Point(Math.random() * 100, Math.random() * 100);
     }
