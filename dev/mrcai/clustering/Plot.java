@@ -12,44 +12,31 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 
 /**
- * The plotter of the points in clusters.
+ * The plotter of points in clusters.
  */
 public class Plot<T extends Point> {
     /**
-     * The title of the plot.
+     * The chart to be plotted.
      */
-    String title = "Cluster";
+    private JFreeChart chart = null;
 
     /**
-     * The data that will be plotted, in the format that JFreeChart can understand.
-     */
-    private DefaultXYDataset plotData = new DefaultXYDataset();
-
-    /**
-     * Construct a plot with the given points.
+     * Create a chart with the given title and points.
      *
-     * @param title  The title of the plot.
+     * @param title  The title of the chart.
      * @param points The points to be plotted.
      */
     public Plot(String title, List<T> points) {
-        this.title = title;
-        getPlotData(points);
+        DefaultXYDataset plotData = transformPoints(points);
+        createChart(title, plotData);
     }
 
     /**
      * Transform the given points to the format that JFreeChart can understand.
      *
-     * The points after transformation looks like:
-     * [
-     * [[x1, x2, x3, ...], [y1, y2, y3, ...]], // Cluster 0
-     * [[x1, x2, x3, ...], [y1, y2, y3, ...]], // Cluster 1
-     * [[x1, x2, x3, ...], [y1, y2, y3, ...]], // Cluster 2
-     * ...
-     * ]
-     *
      * @param points The points to be transformed.
      */
-    private void getPlotData(List<T> points) {
+    private DefaultXYDataset transformPoints(List<T> points) {
         Map<Integer, Integer> pointNums = getPointNums(points);
         int clusterNum = pointNums.size();
 
@@ -74,9 +61,12 @@ public class Plot<T extends Point> {
         }
 
         // Transform the data to the format that JFreeChart can understand.
+        DefaultXYDataset plotData = new DefaultXYDataset();
         for (int clusterIndex = 0; clusterIndex < clusterNum; clusterIndex++) {
             plotData.addSeries(clusterIndex, clusters[clusterIndex]);
         }
+
+        return plotData;
     }
 
     /**
@@ -99,15 +89,23 @@ public class Plot<T extends Point> {
     }
 
     /**
+     * Create a chart with the given title and data.
+     *
+     * @param title    The title of the chart.
+     * @param plotData The data to be plotted.
+     */
+    private void createChart(String title, DefaultXYDataset plotData) {
+        chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
+        ChartFrame frame = new ChartFrame(title, chart, true);
+        frame.pack();
+    }
+
+    /**
      * Save the plot to the given file path.
      *
      * @param filePath The file path to save the plot.
      */
     public void save(String filePath) {
-        JFreeChart chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
-        ChartFrame frame = new ChartFrame(title, chart, true);
-        frame.pack();
-
         try {
             File file = new File(filePath);
             if (!file.exists()) {
@@ -117,7 +115,5 @@ public class Plot<T extends Point> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        frame.setVisible(true);
     }
 }

@@ -14,7 +14,7 @@ public class DBSCAN {
     /**
      * Point in DBSCAN clustering.
      */
-    private static class DbscanPoint extends AbstractPoint {
+    private static class Point extends dev.mrcai.clustering.Point {
         /**
          * Whether this point has been visited.
          * Every point is by default unvisited, and will be visited at most once.
@@ -27,7 +27,7 @@ public class DBSCAN {
          * @param x The x coordinate of the point.
          * @param y The y coordinate of the point.
          */
-        public DbscanPoint(double x, double y) {
+        public Point(double x, double y) {
             super(x, y);
         }
 
@@ -53,7 +53,7 @@ public class DBSCAN {
     /**
      * Points to be clustered.
      */
-    private List<DbscanPoint> points = new ArrayList<DbscanPoint>();
+    private List<Point> points = new ArrayList<Point>();
 
     /**
      * The maximum distance between two points to be considered as neighbors.
@@ -106,7 +106,7 @@ public class DBSCAN {
                 String[] stringPoint = line.trim().split("\t");
                 double x = Double.parseDouble(stringPoint[0]);
                 double y = Double.parseDouble(stringPoint[1]);
-                DbscanPoint point = new DbscanPoint(x, y);
+                Point point = new Point(x, y);
                 points.add(point);
             }
 
@@ -124,14 +124,14 @@ public class DBSCAN {
         int currentClusterIndex = 0;
 
         // Inspect every unvisited point.
-        for (DbscanPoint point : points) {
+        for (Point point : points) {
             if (point.getIsVisited()) {
                 continue;
             }
             point.setIsVisited(true);
 
             // Get the neighbors of the point.
-            List<DbscanPoint> neighbors = getNeighbors(point);
+            List<Point> neighbors = getNeighbors(point);
 
             // If there is not enough neighbors, the point is not a center.
             if (neighbors.size() < minNeighborNum) {
@@ -143,10 +143,10 @@ public class DBSCAN {
             point.setClusterIndex(currentClusterIndex);
 
             // Use BFS to explore all reachable points in the cluster.
-            Queue<DbscanPoint> reachableQueue = new LinkedList<DbscanPoint>(neighbors);
+            Queue<Point> reachableQueue = new LinkedList<Point>(neighbors);
             while (!reachableQueue.isEmpty()) {
                 // Fetch a point from the queue.
-                DbscanPoint currentPoint = reachableQueue.poll();
+                Point currentPoint = reachableQueue.poll();
 
                 // If this point is already visited, skip it.
                 if (currentPoint.getIsVisited()) {
@@ -158,13 +158,13 @@ public class DBSCAN {
                 currentPoint.setClusterIndex(currentClusterIndex);
 
                 // If this point is not a center, stop further exploration from this point.
-                List<DbscanPoint> currentNeighbors = getNeighbors(currentPoint);
+                List<Point> currentNeighbors = getNeighbors(currentPoint);
                 if (currentNeighbors.size() < minNeighborNum) {
                     continue;
                 }
 
                 // Otherwise, mark all of its neighbors as reachable.
-                for (DbscanPoint currentNeighbor : currentNeighbors) {
+                for (Point currentNeighbor : currentNeighbors) {
                     // If this neighbor is already visited or is already in the queue, skip it.
                     // This is not necessary, but it can save some time.
                     if (currentNeighbor.getIsVisited() || reachableQueue.contains(currentNeighbor)) {
@@ -176,7 +176,7 @@ public class DBSCAN {
         }
 
         // Visualize the result.
-        Plot<DbscanPoint> plot = new Plot<DbscanPoint>("DBSCAN clustering", points);
+        Plot<Point> plot = new Plot<Point>("DBSCAN clustering", points);
         plot.save("outputs/clustering/dbscan.png");
     }
 
@@ -186,9 +186,9 @@ public class DBSCAN {
      * @param center The point.
      * @return The neighbors of the given point.
      */
-    private List<DbscanPoint> getNeighbors(DbscanPoint center) {
-        List<DbscanPoint> neighbors = new ArrayList<DbscanPoint>();
-        for (DbscanPoint point : points) {
+    private List<Point> getNeighbors(Point center) {
+        List<Point> neighbors = new ArrayList<Point>();
+        for (Point point : points) {
             if (point == center) {
                 continue;
             }
