@@ -1,4 +1,4 @@
-package dev.mrcai.classification;
+package dev.mrcai.datamining.classification;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,4 +1,4 @@
-package dev.mrcai.association;
+package dev.mrcai.datamining.association;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

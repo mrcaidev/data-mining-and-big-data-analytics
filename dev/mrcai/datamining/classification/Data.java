@@ -1,4 +1,4 @@
-package dev.mrcai.classification;
+package dev.mrcai.datamining.classification;
 
 public class Data {
     public double[] data;

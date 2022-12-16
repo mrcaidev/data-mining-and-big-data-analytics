@@ -1,4 +1,4 @@
-package dev.mrcai.clustering;
+package dev.mrcai.datamining.clustering;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,7 +14,7 @@ public class DBSCAN {
     /**
      * Point in DBSCAN clustering.
      */
-    private static class Point extends dev.mrcai.clustering.Point {
+    private static class Point extends dev.mrcai.datamining.clustering.Point {
         /**
          * Whether this point has been visited.
          * Every point is by default unvisited, and will be visited at most once.

@@ -1,4 +1,4 @@
-package dev.mrcai.clustering;
+package dev.mrcai.datamining.clustering;
 
 /**
  * A 2D point in a cluster.

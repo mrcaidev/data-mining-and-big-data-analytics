@@ -1,4 +1,4 @@
-package dev.mrcai.clustering;
+package dev.mrcai.datamining.clustering;
 
 import java.io.File;
 import java.util.HashMap;

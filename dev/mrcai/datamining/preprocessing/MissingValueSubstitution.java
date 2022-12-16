@@ -1,4 +1,4 @@
-package dev.mrcai.preprocessing;
+package dev.mrcai.datamining.preprocessing;
 
 import weka.core.Attribute;
 import weka.core.Instance;
