@@ -98,6 +98,7 @@ public class Plot<T extends Point> {
         chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
         ChartFrame frame = new ChartFrame(title, chart, true);
         frame.pack();
+        frame.dispose();
     }
 
     /**
