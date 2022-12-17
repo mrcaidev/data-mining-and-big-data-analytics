@@ -1,50 +1,48 @@
 package dev.mrcai.datamining.preprocessing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 
 public class MissingValueSubstitution {
-    private Instances instances;
+    private Instances instances = null;
 
     public static void main(String[] args) throws Exception {
         MissingValueSubstitution mvs = new MissingValueSubstitution("data/preprocessing/labor.arff");
-        Instances substitutedInstances = mvs.substitute();
-        IOUtils.saveInstances("outputs/preprocessing/labor-substituted.arff", substitutedInstances);
+        mvs.save("outputs/preprocessing/labor-substituted.arff");
     }
 
     public MissingValueSubstitution(String filePath) throws Exception {
         instances = IOUtils.loadInstances(filePath);
+        substitute();
     }
 
-    /**
-     * Substitute missing values of all instances.
-     *
-     * @return The substituted instances.
-     */
-    private Instances substitute() {
-        Object[] substitutions = getSubstitutions();
+    public void save(String filePath) throws Exception {
+        IOUtils.saveInstances(filePath, instances);
+    }
 
-        Instances substitutedInstances = new Instances(instances);
+    private void substitute() {
+        List<Object> substitutions = getSubstitutions();
 
-        int rowNum = substitutedInstances.numInstances();
-        int columnNum = substitutedInstances.numAttributes();
-
+        int rowNum = instances.numInstances();
+        int columnNum = instances.numAttributes();
         for (int row = 0; row < rowNum; row++) {
-            Instance instance = substitutedInstances.instance(row);
+            Instance instance = instances.instance(row);
             for (int column = 0; column < columnNum; column++) {
                 if (!instance.isMissing(column)) {
                     continue;
                 }
+
                 if (instance.attribute(column).isAveragable()) {
-                    instance.setValue(column, (double) substitutions[column]);
+                    instance.setValue(column, (double) substitutions.get(column));
                 } else {
-                    instance.setValue(column, (String) substitutions[column]);
+                    instance.setValue(column, (String) substitutions.get(column));
                 }
             }
         }
-
-        return substitutedInstances;
     }
 
     /**
@@ -53,16 +51,21 @@ public class MissingValueSubstitution {
      * If the attribute is averagable, the substitution is its mean value.
      * Otherwise, the substitution is its mode value.
      *
+     * Actually, the `substitutions` should be of type `Instance`,
+     * but Weka does not support the instantiation of `Instance`.
+     * So we use `List<Object>` instead.
+     *
      * @return The substitution for each attribute.
      */
-    private Object[] getSubstitutions() {
-        int columnNum = instances.numAttributes();
-        Object[] substitutions = new Object[columnNum];
+    private List<Object> getSubstitutions() {
+        List<Object> substitutions = new ArrayList<Object>();
 
+        int columnNum = instances.numAttributes();
         for (int column = 0; column < columnNum; column++) {
             Attribute attribute = instances.attribute(column);
             double meanOrMode = instances.meanOrMode(column);
-            substitutions[column] = attribute.isAveragable() ? meanOrMode : attribute.value((int) meanOrMode);
+            Object substitution = attribute.isAveragable() ? meanOrMode : attribute.value((int) meanOrMode);
+            substitutions.add(substitution);
         }
 
         return substitutions;

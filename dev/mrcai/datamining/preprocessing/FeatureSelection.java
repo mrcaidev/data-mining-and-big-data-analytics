@@ -8,19 +8,23 @@ import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
 public class FeatureSelection {
-    private Instances instances;
+    private Instances instances = null;
 
     public static void main(String[] args) throws Exception {
-        FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff");
-        Instances selectedInstances = fs.select(2);
-        IOUtils.saveInstances("outputs/preprocessing/iris-selected.arff", selectedInstances);
+        FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff", 2);
+        fs.save("outputs/preprocessing/iris-selected.arff");
     }
 
-    public FeatureSelection(String filePath) throws Exception {
+    public FeatureSelection(String filePath, int featureNum) throws Exception {
         instances = IOUtils.loadInstances(filePath);
+        select(featureNum);
     }
 
-    private Instances select(int selectNum) throws Exception {
+    public void save(String filePath) throws Exception {
+        IOUtils.saveInstances(filePath, instances);
+    }
+
+    private void select(int featureNum) throws Exception {
         AttributeSelection selection = new AttributeSelection();
         selection.setInputFormat(instances);
 
@@ -29,9 +33,9 @@ public class FeatureSelection {
 
         Ranker rank = new Ranker();
         rank.setThreshold(0);
-        rank.setNumToSelect(selectNum);
+        rank.setNumToSelect(featureNum);
         selection.setSearch(rank);
 
-        return Filter.useFilter(instances, selection);
+        instances = Filter.useFilter(instances, selection);
     }
 }
