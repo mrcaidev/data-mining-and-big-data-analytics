@@ -3,38 +3,28 @@ package dev.mrcai.datamining.preprocessing;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ConverterUtils.DataSink;
-import weka.core.converters.ConverterUtils.DataSource;
 
 public class MissingValueSubstitution {
     private Instances instances;
-    private Object[] substitutions;
 
     public static void main(String[] args) throws Exception {
         MissingValueSubstitution mvs = new MissingValueSubstitution("data/preprocessing/labor.arff");
         Instances substitutedInstances = mvs.substitute();
-        saveInstances("outputs/preprocessing/labor-substituted.arff", substitutedInstances);
+        IOUtils.saveInstances("outputs/preprocessing/labor-substituted.arff", substitutedInstances);
     }
 
     public MissingValueSubstitution(String filePath) throws Exception {
-        instances = loadInstances(filePath);
-        substitutions = getSubstitutions();
+        instances = IOUtils.loadInstances(filePath);
     }
 
-    private Object[] getSubstitutions() {
-        int columnNum = instances.numAttributes();
-        Object[] substitutions = new Object[columnNum];
-
-        for (int column = 0; column < columnNum; column++) {
-            Attribute attribute = instances.attribute(column);
-            double meanOrMode = instances.meanOrMode(column);
-            substitutions[column] = attribute.isAveragable() ? meanOrMode : attribute.value((int) meanOrMode);
-        }
-
-        return substitutions;
-    }
-
+    /**
+     * Substitute missing values of all instances.
+     *
+     * @return The substituted instances.
+     */
     private Instances substitute() {
+        Object[] substitutions = getSubstitutions();
+
         Instances substitutedInstances = new Instances(instances);
 
         int rowNum = substitutedInstances.numInstances();
@@ -57,12 +47,24 @@ public class MissingValueSubstitution {
         return substitutedInstances;
     }
 
-    private static Instances loadInstances(String filePath) throws Exception {
-        DataSource source = new DataSource(filePath);
-        return source.getDataSet();
-    }
+    /**
+     * Get the substitution value for each attribute.
+     *
+     * If the attribute is averagable, the substitution is its mean value.
+     * Otherwise, the substitution is its mode value.
+     *
+     * @return The substitution for each attribute.
+     */
+    private Object[] getSubstitutions() {
+        int columnNum = instances.numAttributes();
+        Object[] substitutions = new Object[columnNum];
 
-    private static void saveInstances(String filePath, Instances instances) throws Exception {
-        DataSink.write(filePath, instances);
+        for (int column = 0; column < columnNum; column++) {
+            Attribute attribute = instances.attribute(column);
+            double meanOrMode = instances.meanOrMode(column);
+            substitutions[column] = attribute.isAveragable() ? meanOrMode : attribute.value((int) meanOrMode);
+        }
+
+        return substitutions;
     }
 }
