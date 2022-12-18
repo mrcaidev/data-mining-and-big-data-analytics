@@ -11,8 +11,8 @@ public class FeatureSelection {
     private Instances instances = null;
 
     public static void main(String[] args) throws Exception {
-        FeatureSelection fs = new FeatureSelection("data/preprocessing/iris.arff", 2);
-        fs.save("outputs/preprocessing/iris-selected.arff");
+        FeatureSelection fs = new FeatureSelection("data/iris.arff", 2);
+        fs.save("outputs/iris-selected.arff");
     }
 
     public FeatureSelection(String filePath, int featureNum) throws Exception {

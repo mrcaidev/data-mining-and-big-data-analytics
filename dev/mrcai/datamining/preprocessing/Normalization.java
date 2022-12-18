@@ -8,8 +8,8 @@ public class Normalization {
     private Instances instances = null;
 
     public static void main(String[] args) throws Exception {
-        Normalization norm = new Normalization("data/preprocessing/iris.arff");
-        norm.save("outputs/preprocessing/iris-normalized.arff");
+        Normalization norm = new Normalization("data/iris.arff");
+        norm.save("outputs/iris-normalized.arff");
     }
 
     public Normalization(String filePath) throws Exception {

@@ -39,8 +39,8 @@ public class DBSCAN {
     private int currentClusterIndex = 0;
 
     public static void main(String args[]) {
-        DBSCAN dbscan = new DBSCAN("data/clustering/points.txt", 1.5, 2);
-        dbscan.plot("outputs/clustering/dbscan.png");
+        DBSCAN dbscan = new DBSCAN("data/points.txt", 1.5, 2);
+        dbscan.plot("outputs/dbscan.png");
     }
 
     public DBSCAN(String filePath, double epsilon, int minNeighborNum) {

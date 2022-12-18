@@ -11,8 +11,8 @@ public class MissingValueSubstitution {
     private Instances instances = null;
 
     public static void main(String[] args) throws Exception {
-        MissingValueSubstitution mvs = new MissingValueSubstitution("data/preprocessing/labor.arff");
-        mvs.save("outputs/preprocessing/labor-substituted.arff");
+        MissingValueSubstitution mvs = new MissingValueSubstitution("data/labor.arff");
+        mvs.save("outputs/labor-substituted.arff");
     }
 
     public MissingValueSubstitution(String filePath) throws Exception {

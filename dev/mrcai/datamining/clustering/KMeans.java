@@ -8,8 +8,8 @@ public class KMeans {
     private List<Point> centers = new ArrayList<Point>();
 
     public static void main(String args[]) {
-        KMeans kMeans = new KMeans("data/clustering/points.txt", 3);
-        kMeans.plot("outputs/clustering/kmeans.png");
+        KMeans kMeans = new KMeans("data/points.txt", 3);
+        kMeans.plot("outputs/kmeans.png");
     }
 
     public KMeans(String filePath, int clusterNum) {
