@@ -1,6 +1,9 @@
 package dev.mrcai.datamining.clustering;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,32 +14,48 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 
-/**
- * The plotter of points in clusters.
- */
-public class Plot<T extends Point> {
-    /**
-     * The chart to be plotted.
-     */
-    private JFreeChart chart = null;
-
-    /**
-     * Create a chart with the given title and points.
-     *
-     * @param title  The title of the chart.
-     * @param points The points to be plotted.
-     */
-    public Plot(String title, List<T> points) {
-        DefaultXYDataset plotData = transformPoints(points);
-        createChart(title, plotData);
+public class IOUtils {
+    private IOUtils() {
     }
 
-    /**
-     * Transform the given points to the format that JFreeChart can understand.
-     *
-     * @param points The points to be transformed.
-     */
-    private DefaultXYDataset transformPoints(List<T> points) {
+    public static <T extends Point> List<T> loadPoints(String filePath, Class<T> pointClass) {
+        List<T> points = new ArrayList<T>();
+
+        try {
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] stringPoint = line.trim().split("\t");
+                double x = Double.parseDouble(stringPoint[0]);
+                double y = Double.parseDouble(stringPoint[1]);
+                T point = pointClass.getDeclaredConstructor(double.class, double.class).newInstance(x, y);
+                points.add(point);
+            }
+
+            bufferedReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return points;
+    }
+
+    public static <T extends Point> void printPoints(List<T> points) {
+        for (Point point : points) {
+            point.print();
+        }
+    }
+
+    public static <T extends Point> void plotPoints(List<T> points, String filePath) {
+        DefaultXYDataset plotData = transformPoints(points);
+        JFreeChart chart = createChart(plotData);
+        saveChart(chart, filePath);
+    }
+
+    private static <T extends Point> DefaultXYDataset transformPoints(List<T> points) {
+        // Get the number of points in each cluster.
         Map<Integer, Integer> pointNums = getPointNums(points);
         int clusterNum = pointNums.size();
 
@@ -69,13 +88,7 @@ public class Plot<T extends Point> {
         return plotData;
     }
 
-    /**
-     * Get the number of points in each cluster.
-     *
-     * @param points The points to be counted.
-     * @return The number of points in each cluster.
-     */
-    private Map<Integer, Integer> getPointNums(List<T> points) {
+    private static <T extends Point> Map<Integer, Integer> getPointNums(List<T> points) {
         Map<Integer, Integer> pointNums = new HashMap<Integer, Integer>();
         for (Point point : points) {
             int clusterIndex = point.getClusterIndex();
@@ -88,25 +101,15 @@ public class Plot<T extends Point> {
         return pointNums;
     }
 
-    /**
-     * Create a chart with the given title and data.
-     *
-     * @param title    The title of the chart.
-     * @param plotData The data to be plotted.
-     */
-    private void createChart(String title, DefaultXYDataset plotData) {
-        chart = ChartFactory.createScatterPlot(title, "x", "y", plotData);
-        ChartFrame frame = new ChartFrame(title, chart, true);
+    private static JFreeChart createChart(DefaultXYDataset plotData) {
+        JFreeChart chart = ChartFactory.createScatterPlot("Clusters", "x", "y", plotData);
+        ChartFrame frame = new ChartFrame("Clusters", chart, true);
         frame.pack();
         frame.dispose();
+        return chart;
     }
 
-    /**
-     * Save the plot to the given file path.
-     *
-     * @param filePath The file path to save the plot.
-     */
-    public void save(String filePath) {
+    public static void saveChart(JFreeChart chart, String filePath) {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
