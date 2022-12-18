@@ -14,12 +14,20 @@ public class KNN {
      * each train iris is regarded as a neighbor.
      */
     private static class Neighbor {
-        public Iris iris;
-        public double distance;
+        private Iris iris;
+        private double distance;
 
         public Neighbor(Iris iris, double distance) {
             this.iris = iris;
             this.distance = distance;
+        }
+
+        public Iris getIris() {
+            return iris;
+        }
+
+        public double getDistance() {
+            return distance;
         }
     }
 
@@ -67,7 +75,7 @@ public class KNN {
         PriorityQueue<Neighbor> neighbors = new PriorityQueue<Neighbor>(k, new Comparator<Neighbor>() {
             @Override
             public int compare(Neighbor o1, Neighbor o2) {
-                return -Double.compare(o1.distance, o2.distance);
+                return -Double.compare(o1.getDistance(), o2.getDistance());
             }
         });
 
@@ -82,7 +90,7 @@ public class KNN {
             }
 
             // If the neighbor is farther, skip it.
-            if (distance >= neighbors.peek().distance) {
+            if (distance >= neighbors.peek().getDistance()) {
                 continue;
             }
 
@@ -94,7 +102,7 @@ public class KNN {
         // Transform queue to list.
         List<Iris> kClosestIrises = new ArrayList<Iris>();
         while (!neighbors.isEmpty()) {
-            kClosestIrises.add(neighbors.poll().iris);
+            kClosestIrises.add(neighbors.poll().getIris());
         }
 
         return kClosestIrises;
