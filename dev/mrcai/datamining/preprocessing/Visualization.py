@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-iris = pd.read_csv("data/preprocessing/iris.csv")
+iris = pd.read_csv("data/iris.csv")
 
 
 def scatter(group: str):
@@ -13,7 +13,7 @@ def scatter(group: str):
         hue="class",
         palette=("red", "green", "blue"),
     )
-    plt.savefig(f"outputs/preprocessing/iris-{group}-scatter.png")
+    plt.savefig(f"outputs/iris-{group}-scatter.png")
     plt.clf()
 
 
@@ -24,7 +24,7 @@ def hist(attribute: str):
         hue="class",
         multiple="stack",
     )
-    plt.savefig(f"outputs/preprocessing/iris-{attribute}-hist.png")
+    plt.savefig(f"outputs/iris-{attribute}-histogram.png")
     plt.clf()
 
 
