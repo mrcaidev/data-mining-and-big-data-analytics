@@ -42,12 +42,6 @@ public class IOUtils {
         return points;
     }
 
-    public static <T extends Point> void printPoints(List<T> points) {
-        for (Point point : points) {
-            point.print();
-        }
-    }
-
     public static <T extends Point> void plotPoints(List<T> points, String filePath) {
         DefaultXYDataset plotData = transformPoints(points);
         JFreeChart chart = createChart(plotData);

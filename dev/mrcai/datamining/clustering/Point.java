@@ -37,8 +37,4 @@ public class Point {
     public double getDistance(Point point) {
         return Math.sqrt(Math.pow(x - point.getX(), 2) + Math.pow(y - point.getY(), 2));
     }
-
-    public void print() {
-        System.out.println("(" + x + ", " + y + ")\t=> " + clusterIndex);
-    }
 }
