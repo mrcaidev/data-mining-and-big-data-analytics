@@ -35,8 +35,8 @@ public class KNN {
     private int k = 0;
 
     public static void main(String[] args) {
-        KNN knn = new KNN("data/classification/train.csv", 3);
-        knn.test("data/classification/test.csv");
+        KNN knn = new KNN("data/iris-train.csv", 3);
+        knn.test("data/iris-test.csv");
     }
 
     public KNN(String filePath, int k) {
