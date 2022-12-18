@@ -14,8 +14,8 @@ public class KNN {
      * each train iris is regarded as a neighbor.
      */
     private static class Neighbor {
-        private Iris iris;
-        private double distance;
+        private Iris iris = null;
+        private double distance = 0.0;
 
         public Neighbor(Iris iris, double distance) {
             this.iris = iris;
