@@ -31,8 +31,8 @@ public class KNN {
         }
     }
 
-    private List<Iris> trainIrises;
-    private int k;
+    private List<Iris> trainIrises = new ArrayList<Iris>();
+    private int k = 0;
 
     public static void main(String[] args) {
         KNN knn = new KNN("data/classification/train.csv", 3);
@@ -122,7 +122,7 @@ public class KNN {
 
         // Find the most frequent label.
         int maxCount = 0;
-        String mostFrequentLabel = null;
+        String mostFrequentLabel = "";
         for (String label : labelCount.keySet()) {
             int count = labelCount.get(label);
             if (count <= maxCount) {
