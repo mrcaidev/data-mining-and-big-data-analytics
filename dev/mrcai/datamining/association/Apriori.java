@@ -1,9 +1,6 @@
 package dev.mrcai.datamining.association;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,17 +13,17 @@ public class Apriori {
     private double minConfidence;
 
     public static void main(String[] args) {
-        Apriori apriori = new Apriori("data/association/top1000data.txt", 0.1, 0.5);
-        apriori.go();
+        Apriori apriori = new Apriori("data/top1000data.txt", 0.1, 0.5);
+        apriori.run();
     }
 
     Apriori(String filePath, double minSupport, double minConfidence) {
-        itemSets = loadItemSets(filePath);
+        itemSets = IOUtils.loadItemSets(filePath);
         this.minSupport = minSupport;
         this.minConfidence = minConfidence;
     }
 
-    public void go() {
+    public void run() {
         // Record all frequent item sets.
         List<Map<Set<String>, Double>> frequentItemSetsList = new ArrayList<Map<Set<String>, Double>>();
 
@@ -57,22 +54,14 @@ public class Apriori {
 
         // Print all frequent item sets.
         System.out.println("\nAll frequent item sets:\n");
-        for (Set<String> itemSet : allFrequentItemSets.keySet()) {
-            double support = Math.round(allFrequentItemSets.get(itemSet) * 100) / 100.0;
-            System.out.println(itemSet + ", support=" + support);
-        }
+        IOUtils.printFrequentItemSets(allFrequentItemSets);
 
         // Get all association rules.
         Map<Map<Set<String>, Set<String>>, Double> associationRules = getAssociationRules(allFrequentItemSets);
 
         // Print all association rules.
         System.out.println("\nAll association rules:\n");
-        for (Map<Set<String>, Set<String>> associationRule : associationRules.keySet()) {
-            Set<String> condition = associationRule.keySet().iterator().next();
-            Set<String> result = associationRule.get(condition);
-            double confidence = Math.round(associationRules.get(associationRule) * 100) / 100.0;
-            System.out.println(condition + " => " + result + ", confidence=" + confidence);
-        }
+        IOUtils.printAssociationRules(associationRules);
     }
 
     private Map<Set<String>, Double> getFrequentOneItemSets() {
@@ -299,27 +288,5 @@ public class Apriori {
         }
 
         return combinations;
-    }
-
-    private static List<Set<String>> loadItemSets(String filePath) {
-        List<Set<String>> itemSets = new ArrayList<Set<String>>();
-
-        try {
-            FileReader fileReader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                List<String> itemList = Arrays.asList(line.trim().split(","));
-                Set<String> itemSet = new HashSet<String>(itemList);
-                itemSets.add(itemSet);
-            }
-
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return itemSets;
     }
 }
