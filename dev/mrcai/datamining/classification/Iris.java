@@ -1,5 +1,7 @@
 package dev.mrcai.datamining.classification;
 
+import java.util.Arrays;
+
 public class Iris {
     private double[] data = new double[4];
     private String label = "";
@@ -26,12 +28,6 @@ public class Iris {
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder("[ ");
-        for (double item : data) {
-            builder.append(item).append(" ");
-        }
-        builder.append("] => ");
-        builder.append(label);
-        return builder.toString();
+        return Arrays.toString(data) + " => " + label;
     }
 }
