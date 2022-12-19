@@ -1,9 +1,5 @@
 package dev.mrcai.datamining.preprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -25,22 +21,12 @@ public class MissingValueSubstitution {
     }
 
     private void substitute() {
-        List<Object> substitutions = getSubstitutions();
+        double[] substitutions = getSubstitutions();
 
-        int rowNum = instances.numInstances();
         int columnNum = instances.numAttributes();
-        for (int row = 0; row < rowNum; row++) {
-            Instance instance = instances.instance(row);
+        for (Instance instance : instances) {
             for (int column = 0; column < columnNum; column++) {
-                if (!instance.isMissing(column)) {
-                    continue;
-                }
-
-                if (instance.attribute(column).isAveragable()) {
-                    instance.setValue(column, (double) substitutions.get(column));
-                } else {
-                    instance.setValue(column, (String) substitutions.get(column));
-                }
+                instance.replaceMissingValues(substitutions);
             }
         }
     }
@@ -57,15 +43,12 @@ public class MissingValueSubstitution {
      *
      * @return The substitution for each attribute.
      */
-    private List<Object> getSubstitutions() {
-        List<Object> substitutions = new ArrayList<Object>();
-
+    private double[] getSubstitutions() {
         int columnNum = instances.numAttributes();
+        double[] substitutions = new double[columnNum];
+
         for (int column = 0; column < columnNum; column++) {
-            Attribute attribute = instances.attribute(column);
-            double meanOrMode = instances.meanOrMode(column);
-            Object substitution = attribute.isAveragable() ? meanOrMode : attribute.value((int) meanOrMode);
-            substitutions.add(substitution);
+            substitutions[column] = instances.meanOrMode(column);
         }
 
         return substitutions;
